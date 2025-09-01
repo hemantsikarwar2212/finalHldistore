@@ -16,18 +16,20 @@ import { useApp } from "../context/AppContext.jsx";
 
 const dayProducts = [
   {
-    name: "Plan A - Aju Mixture",
+    name: "Plan A - Kaju Mixture",
     price: 590,
     dailyProfit: 75,
     duration: 120,
     totalReturn: 9000,
+    image: "/kaju mix.jpeg",
   },
   {
-    name: "Plan B - Khatta Meetha",
+    name: "Plan B - Moong daal",
     price: 1990,
     dailyProfit: 310,
     duration: 105,
     totalReturn: 32550,
+    image: "/mongdaal.jpeg",
   },
   {
     name: "Plan C - Navrattan Mix",
@@ -35,20 +37,23 @@ const dayProducts = [
     dailyProfit: 840,
     duration: 90,
     totalReturn: 75600,
+    image: "/navrattan.jpg",
   },
   {
-    name: "Plan D - Premium Mix",
+    name: "Plan D - Murmura Mix",
     price: 9700,
     dailyProfit: 1620,
     duration: 75,
     totalReturn: 121500,
+    image: "/murmukra.jpeg",
   },
   {
-    name: "Plan E - Royal Mixture",
+    name: "Plan E - Bhujia",
     price: 15980,
     dailyProfit: 3960,
     duration: 50,
     totalReturn: 198000,
+    image: "/imagesbhejia.jpeg",
   },
   {
     name: "Plan F - Elite Selection",
@@ -56,13 +61,15 @@ const dayProducts = [
     dailyProfit: 6500,
     duration: 50,
     totalReturn: 325000,
+    image: "/elite.jpeg",
   },
   {
-    name: "Plan G - Platinum Collection",
+    name: "Plan G - Happy Moments",
     price: 34900,
     dailyProfit: 11000,
     duration: 50,
     totalReturn: 550000,
+    image: "/momonets.jpeg",
   },
 ];
 
@@ -73,6 +80,7 @@ const vipProducts = [
     dailyProfit: 3100,
     duration: 7,
     totalReturn: 21700,
+    image:"/vipimg.jpeg"
   },
   {
     name: "VIP Plan 2 - Supreme Collection",
@@ -80,6 +88,7 @@ const vipProducts = [
     dailyProfit: 7200,
     duration: 7,
     totalReturn: 50400,
+    image:"/vipimg2.jpeg"
   },
   {
     name: "VIP Plan 3 - Ultimate Premium",
@@ -87,6 +96,7 @@ const vipProducts = [
     dailyProfit: 14500,
     duration: 7,
     totalReturn: 101500,
+    image:"/vipimg3.jpeg"
   },
 ];
 
@@ -152,7 +162,6 @@ const Dashboard = () => {
       <div className="bg-white p-4 flex items-center justify-between shadow-sm">
         <div className="text-lg font-bold text-gray-800">Dashboard</div>
         <div className="flex items-center space-x-1 text-sm text-gray-600">
-          
           <div className="w-6 h-3 border border-gray-400 rounded-sm">
             <div className="w-1/2 h-full bg-gray-600 rounded-sm"></div>
           </div>
@@ -190,13 +199,19 @@ const Dashboard = () => {
         </div>
 
         <div className="flex justify-between">
-          <button className="flex flex-col items-center space-y-1" onClick={() => setShowRecharge(true)}>
+          <button
+            className="flex flex-col items-center space-y-1"
+            onClick={() => setShowRecharge(true)}
+          >
             <div className="bg-white/20 p-3 rounded-xl">
               <Wallet className="w-5 h-5 text-white" />
             </div>
             <span className="text-white text-xs">Recharge</span>
           </button>
-          <button className="flex flex-col items-center space-y-1" onClick={() => setShowWithdraw(true)}>
+          <button
+            className="flex flex-col items-center space-y-1"
+            onClick={() => setShowWithdraw(true)}
+          >
             <div className="bg-white/20 p-3 rounded-xl">
               <CreditCard className="w-5 h-5 text-white" />
             </div>
@@ -245,7 +260,7 @@ const Dashboard = () => {
         >
           VIP Product
           <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full">
-            HOT
+            Hot
           </span>
         </button>
       </div>
@@ -300,12 +315,12 @@ const Dashboard = () => {
                 </div>
 
                 <div className="ml-4">
-                  <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg flex items-center justify-center">
-                    <div className="w-16 h-12 bg-yellow-400 rounded-sm flex items-center justify-center">
-                      <span className="text-purple-800 text-xs font-bold transform -rotate-12">
-                        MIX
-                      </span>
-                    </div>
+                  <div className="w-50 h-30 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg flex items-center justify-center  ">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className=" object-cover rounded-lg"
+                    />
                   </div>
                 </div>
               </div>
@@ -317,20 +332,34 @@ const Dashboard = () => {
       {/* Recharge Modal */}
       {showRecharge && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <form className="bg-white p-6 rounded-lg shadow-lg w-80" onSubmit={handleRecharge}>
+          <form
+            className="bg-white p-6 rounded-lg shadow-lg w-80"
+            onSubmit={handleRecharge}
+          >
             <h2 className="text-lg font-bold mb-4">Recharge Wallet</h2>
             <input
               type="number"
               className="w-full border p-2 rounded mb-4"
               placeholder="Enter amount"
               value={rechargeAmount}
-              onChange={e => setRechargeAmount(e.target.value)}
+              onChange={(e) => setRechargeAmount(e.target.value)}
               min={1}
               required
             />
             <div className="flex justify-end space-x-2">
-              <button type="button" className="px-4 py-2 bg-gray-200 rounded" onClick={() => setShowRecharge(false)}>Cancel</button>
-              <button type="submit" className="px-4 py-2 bg-red-600 text-white rounded">Recharge</button>
+              <button
+                type="button"
+                className="px-4 py-2 bg-gray-200 rounded"
+                onClick={() => setShowRecharge(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-red-600 text-white rounded"
+              >
+                Recharge
+              </button>
             </div>
           </form>
         </div>
@@ -339,14 +368,17 @@ const Dashboard = () => {
       {/* Withdraw Modal */}
       {showWithdraw && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <form className="bg-white p-6 rounded-lg shadow-lg w-96" onSubmit={handleWithdraw}>
+          <form
+            className="bg-white p-6 rounded-lg shadow-lg w-96"
+            onSubmit={handleWithdraw}
+          >
             <h2 className="text-lg font-bold mb-4">Withdraw Funds</h2>
             <input
               type="number"
               className="w-full border p-2 rounded mb-2"
               placeholder="Amount"
               value={withdrawAmount}
-              onChange={e => setWithdrawAmount(e.target.value)}
+              onChange={(e) => setWithdrawAmount(e.target.value)}
               min={1}
               required
             />
@@ -355,7 +387,12 @@ const Dashboard = () => {
               className="w-full border p-2 rounded mb-2"
               placeholder="Account Number"
               value={withdrawBank.accountNumber}
-              onChange={e => setWithdrawBank({ ...withdrawBank, accountNumber: e.target.value })}
+              onChange={(e) =>
+                setWithdrawBank({
+                  ...withdrawBank,
+                  accountNumber: e.target.value,
+                })
+              }
               required
             />
             <input
@@ -363,7 +400,9 @@ const Dashboard = () => {
               className="w-full border p-2 rounded mb-2"
               placeholder="IFSC Code"
               value={withdrawBank.ifscCode}
-              onChange={e => setWithdrawBank({ ...withdrawBank, ifscCode: e.target.value })}
+              onChange={(e) =>
+                setWithdrawBank({ ...withdrawBank, ifscCode: e.target.value })
+              }
               required
             />
             <input
@@ -371,12 +410,28 @@ const Dashboard = () => {
               className="w-full border p-2 rounded mb-4"
               placeholder="Account Holder Name"
               value={withdrawBank.accountHolder}
-              onChange={e => setWithdrawBank({ ...withdrawBank, accountHolder: e.target.value })}
+              onChange={(e) =>
+                setWithdrawBank({
+                  ...withdrawBank,
+                  accountHolder: e.target.value,
+                })
+              }
               required
             />
             <div className="flex justify-end space-x-2">
-              <button type="button" className="px-4 py-2 bg-gray-200 rounded" onClick={() => setShowWithdraw(false)}>Cancel</button>
-              <button type="submit" className="px-4 py-2 bg-red-600 text-white rounded">Withdraw</button>
+              <button
+                type="button"
+                className="px-4 py-2 bg-gray-200 rounded"
+                onClick={() => setShowWithdraw(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-red-600 text-white rounded"
+              >
+                Withdraw
+              </button>
             </div>
           </form>
         </div>
@@ -386,7 +441,12 @@ const Dashboard = () => {
       {message && (
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white border border-red-400 text-red-700 px-6 py-3 rounded shadow-lg z-50">
           {message}
-          <button className="ml-4 text-xs text-gray-500" onClick={() => setMessage("")}>x</button>
+          <button
+            className="ml-4 text-xs text-gray-500"
+            onClick={() => setMessage("")}
+          >
+            x
+          </button>
         </div>
       )}
 
@@ -406,11 +466,17 @@ const Dashboard = () => {
               <Users className="w-4 h-4 text-white" />
             </div>
           </button>
-          <Link to="/about" className="flex flex-col items-center space-y-1 p-2">
+          <Link
+            to="/about"
+            className="flex flex-col items-center space-y-1 p-2"
+          >
             <Info className="w-5 h-5 text-gray-400" />
             <span className="text-xs text-gray-400">About</span>
           </Link>
-          <Link to="/profile" className="flex flex-col items-center space-y-1 p-2">
+          <Link
+            to="/profile"
+            className="flex flex-col items-center space-y-1 p-2"
+          >
             <User className="w-5 h-5 text-gray-400" />
             <span className="text-xs text-gray-400">Profile</span>
           </Link>
