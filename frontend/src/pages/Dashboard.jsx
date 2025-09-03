@@ -1,6 +1,9 @@
-import  { useState } from "react";
+import { useState,useEffect } from "react";
 import { Link } from "react-router-dom";
 import apiService from "../services/apiService";
+import { useNavigate } from "react-router-dom"; // ⬅️ add this
+import Login from "../components/Userlogin.jsx";
+
 import {
   Wallet,
   CreditCard,
@@ -14,6 +17,7 @@ import {
 } from "lucide-react";
 import { useApp } from "../context/AppContext.jsx";
 
+// Products
 const dayProducts = [
   {
     name: "Plan A - Kaju Mixture",
@@ -80,7 +84,7 @@ const vipProducts = [
     dailyProfit: 3100,
     duration: 7,
     totalReturn: 21700,
-    image:"/vipimg.jpeg"
+    image: "/vipimg.jpeg",
   },
   {
     name: "VIP Plan 2 - Supreme Collection",
@@ -88,7 +92,7 @@ const vipProducts = [
     dailyProfit: 7200,
     duration: 7,
     totalReturn: 50400,
-    image:"/vipimg2.jpeg"
+    image: "/vipimg2.jpeg",
   },
   {
     name: "VIP Plan 3 - Ultimate Premium",
@@ -96,9 +100,94 @@ const vipProducts = [
     dailyProfit: 14500,
     duration: 7,
     totalReturn: 101500,
-    image:"/vipimg3.jpeg"
+    image: "/vipimg3.jpeg",
   },
 ];
+
+// Profile Section Component
+const ProfileSection = ({
+  user,
+  balance,
+  setShowRecharge,
+  setShowWithdraw,
+  onLogout,
+}) => {
+  return (
+    <div className="p-4">
+      {/* Profile Header */}
+      <div className="bg-gradient-to-r from-red-700 to-red-600 rounded-2xl p-4 text-white shadow-md">
+        <div className="flex items-center mb-4">
+          <div className="bg-white text-red-700 font-bold px-3 py-2 rounded-full mr-3">
+            {user?.username?.charAt(0) || "H"}
+          </div>
+          <div>
+            <p className="font-semibold text-sm">{user?.username || "Guest"}</p>
+            <p className="text-xs">{user?.phone || "123****88"}</p>
+          </div>
+        </div>
+
+        {/* Account Balance */}
+        <div className="bg-white text-red-700 p-3 rounded-xl flex justify-between items-center mb-3">
+          <div>
+            <p className="text-xs text-gray-600">Account Balance</p>
+            <p className="font-bold text-lg">₹{balance}</p>
+          </div>
+          <button
+            onClick={() => setShowRecharge(true)}
+            className="bg-gradient-to-r from-red-600 to-red-500 px-4 py-2 rounded-lg text-white text-xs font-semibold"
+          >
+            Recharge ⚡
+          </button>
+        </div>
+
+        {/* Quick Summary */}
+        <div className="flex justify-between text-xs font-semibold">
+          <div className="text-center flex-1">
+            <p>₹{balance}</p>
+            <p className="text-white/80">Balance</p>
+          </div>
+          <div className="text-center flex-1">
+            <p>₹50</p>
+            <p className="text-white/80">Recharge</p>
+          </div>
+          <div className="text-center flex-1">
+            <p>₹350</p>
+            <p className="text-white/80">Withdraw</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Menu List */}
+      <div className="mt-4 bg-white rounded-xl shadow divide-y">
+        <button className="w-full flex justify-between items-center p-3 text-sm">
+          <span>📑 About Company</span> <span>›</span>
+        </button>
+        <button className="w-full flex justify-between items-center p-3 text-sm">
+          <span>💰 Income Record</span> <span>›</span>
+        </button>
+        <button className="w-full flex justify-between items-center p-3 text-sm">
+          <span>➕ Recharge Record</span> <span>›</span>
+        </button>
+        <button className="w-full flex justify-between items-center p-3 text-sm">
+          <span>➖ Withdraw Record</span> <span>›</span>
+        </button>
+        <button className="w-full flex justify-between items-center p-3 text-sm">
+          <span>🔒 Security Manager</span> <span>›</span>
+        </button>
+      </div>
+
+      {/* Logout Button */}
+      <div className="mt-6">
+        <button
+          onClick={onLogout}
+          className="w-full bg-red-600 text-white py-3 rounded-xl font-bold"
+        >
+          LOGOUT
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("day");
@@ -106,13 +195,40 @@ const Dashboard = () => {
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [rechargeAmount, setRechargeAmount] = useState("");
   const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [withdrawBank, setWithdrawBank] = useState({ accountNumber: "", ifscCode: "", accountHolder: "" });
+  const [withdrawBank, setWithdrawBank] = useState({
+    accountNumber: "",
+    ifscCode: "",
+    accountHolder: "",
+  });
   const [investing, setInvesting] = useState(false);
   const [message, setMessage] = useState("");
   const { user, token, setUser } = useApp();
+  const navigate = useNavigate();
   const balance = user?.balance || 0;
+  const { logout } = useApp();
 
-  // Recharge handler
+  // Logout functionality
+  const handleLogout = () => {
+    // Clear user data from context
+    logout();
+
+    // Clear any stored authentication data (if you're using localStorage/sessionStorage)
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    // Redirect to login page
+    navigate("/login", { replace: true });
+  };
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (!user || !storedToken) {
+      navigate("/login", { replace: true });
+    }
+  }, [user, navigate]);
+
+
+
+  // Recharge
   const handleRecharge = async (e) => {
     e.preventDefault();
     setMessage("");
@@ -122,53 +238,55 @@ const Dashboard = () => {
       setMessage(res.message || "Recharge successful");
       setShowRecharge(false);
       setRechargeAmount("");
-    } catch (err) {
+    } catch {
       setMessage("Recharge failed");
     }
   };
 
-  // Withdraw handler
+  // Withdraw
   const handleWithdraw = async (e) => {
     e.preventDefault();
     setMessage("");
     try {
-      const res = await apiService.requestWithdrawal(token, Number(withdrawAmount), withdrawBank);
+      const res = await apiService.requestWithdrawal(
+        token,
+        Number(withdrawAmount),
+        withdrawBank
+      );
       setMessage(res.message || "Withdrawal requested");
       setShowWithdraw(false);
       setWithdrawAmount("");
       setWithdrawBank({ accountNumber: "", ifscCode: "", accountHolder: "" });
-    } catch (err) {
+    } catch {
       setMessage("Withdraw failed");
     }
   };
 
-  // Invest handler
+  // Invest
   const handleInvest = async (product) => {
     setInvesting(true);
     setMessage("");
     try {
-      const res = await apiService.invest(token, product._id || product.id || product.name); // fallback for demo
+      const res = await apiService.invest(
+        token,
+        product._id || product.id || product.name
+      );
       if (res.balance !== undefined) setUser({ ...user, balance: res.balance });
       setMessage(res.message || "Investment successful");
-    } catch (err) {
+    } catch {
       setMessage("Investment failed");
     }
     setInvesting(false);
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-red-700 pb-safe">
       {/* Header */}
-      <div className="bg-white p-4 flex items-center justify-between shadow-sm">
-        <div className="text-lg font-bold text-gray-800">Dashboard</div>
-        <div className="flex items-center space-x-1 text-sm text-gray-600">
-          <div className="w-6 h-3 border border-gray-400 rounded-sm">
-            <div className="w-1/2 h-full bg-gray-600 rounded-sm"></div>
-          </div>
-        </div>
-      </div>
+      <header className="bg-white p-4 flex items-center justify-between shadow-sm">
+        <h1 className="text-base font-bold text-gray-800">Dashboard</h1>
+      </header>
 
-      {/* Balance Card */}
+      {/* //section main */}
       <div className="bg-gradient-to-r from-red-700 to-red-600 m-4 p-6 rounded-2xl text-white shadow-lg">
         <div className="flex items-center mb-4">
           <div className="bg-white p-2 rounded-lg mr-3">
@@ -238,127 +356,122 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="mx-4 mb-4 flex bg-white rounded-2xl overflow-hidden shadow-sm">
-        <button
-          onClick={() => setActiveTab("day")}
-          className={`flex-1 py-3 px-4 text-center font-semibold ${
-            activeTab === "day"
-              ? "bg-red-600 text-white"
-              : "bg-white text-gray-600"
-          }`}
-        >
-          Day Product
-        </button>
-        <button
-          onClick={() => setActiveTab("vip")}
-          className={`flex-1 py-3 px-4 text-center font-semibold relative ${
-            activeTab === "vip"
-              ? "bg-red-600 text-white"
-              : "bg-white text-gray-600"
-          }`}
-        >
-          VIP Product
-          <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full">
-            Hot
-          </span>
-        </button>
-      </div>
+      {/* Show Profile Section */}
+      {activeTab === "profile" ? (
+        <ProfileSection
+          user={user}
+          balance={balance}
+          setShowRecharge={setShowRecharge}
+          setShowWithdraw={setShowWithdraw}
+          onLogout={handleLogout}
+        />
+      ) : (
+        <>
+          {/* Tabs */}
+          <div className="mx-3 mb-3 flex bg-white rounded-xl shadow-sm text-sm mt-3">
+            <button
+              onClick={() => setActiveTab("day")}
+              className={`flex-1 py-2 ${
+                activeTab === "day" ? "bg-red-600 text-white" : "text-gray-600"
+              }`}
+            >
+              Day
+            </button>
+            <button
+              onClick={() => setActiveTab("vip")}
+              className={`flex-1 py-2 relative ${
+                activeTab === "vip" ? "bg-red-600 text-white" : "text-gray-600"
+              }`}
+            >
+              VIP
+              <span className="absolute -top-1 right-2 bg-orange-500 text-white text-[10px] px-1 rounded">
+                Hot
+              </span>
+            </button>
+          </div>
 
-      {/* Product Cards */}
-      <div className="px-4 space-y-4">
-        {(activeTab === "day" ? dayProducts : vipProducts).map(
-          (product, index) => (
-            <div key={index} className="bg-white rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                    {activeTab === "day"
-                      ? `Plan ${String.fromCharCode(65 + index)}`
-                      : `VIP Plan ${index + 1}`}
-                  </h3>
+          {/* Products */}
 
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Each Price</span>
-                      <span className="font-semibold">
-                        ₹ {product.price.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Revenue</span>
-                      <span className="font-semibold">
-                        {product.duration} Days
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Daily Earnings</span>
-                      <span className="font-semibold">
-                        ₹ {product.dailyProfit.toFixed(2)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Total Gain</span>
-                      <span className="font-semibold">
-                        ₹ {product.totalReturn.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <button
-                    className="w-full mt-6 bg-red-600 text-white py-3 rounded-full font-semibold hover:bg-red-700 transition-colors"
-                    disabled={investing}
-                    onClick={() => handleInvest(product)}
-                  >
-                    {investing ? "Investing..." : "Invest Now"}
-                  </button>
-                </div>
-
-                <div className="ml-4">
-                  <div className="w-50 h-30 bg-gradient-to-br from-purple-600 to-purple-800 rounded-lg flex items-center justify-center  ">
+          <div className="px-3 space-y-3">
+            {(activeTab === "day" ? dayProducts : vipProducts).map(
+              (product, index) => (
+                <div
+                  key={index}
+                  className="bg-white rounded-xl p-4 shadow-sm flex flex-col"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center">
                     <img
                       src={product.image}
                       alt={product.name}
-                      className=" object-cover rounded-lg"
+                      className="mt-3 p-5 sm:mt-0 sm:ml-3 w-full sm:w-10 h-60 object-cover rounded-lg"
                     />
+                    <div className="flex-1">
+                      <h3 className="text-sm font-semibold mb-2">
+                        {product.name}
+                      </h3>
+                      <ul className="text-xs space-y-1">
+                        <li className="flex justify-between">
+                          <span>Price</span>
+                          <span>₹{product.price}</span>
+                        </li>
+                        <li className="flex justify-between">
+                          <span>Duration</span>
+                          <span>{product.duration} Days</span>
+                        </li>
+                        <li className="flex justify-between">
+                          <span>Daily</span>
+                          <span>₹{product.dailyProfit}</span>
+                        </li>
+                        <li className="flex justify-between">
+                          <span>Total</span>
+                          <span>₹{product.totalReturn}</span>
+                        </li>
+                      </ul>
+                      <button
+                        onClick={() => handleInvest(product)}
+                        disabled={investing}
+                        className="mt-3 w-full bg-red-600 text-white py-2 rounded-full text-xs font-semibold"
+                      >
+                        {investing ? "Investing..." : "Invest Now"}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )
-        )}
-      </div>
+              )
+            )}
+          </div>
+        </>
+      )}
 
       {/* Recharge Modal */}
       {showRecharge && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-3">
           <form
-            className="bg-white p-6 rounded-lg shadow-lg w-80"
             onSubmit={handleRecharge}
+            className="bg-white p-4 rounded-lg w-full max-w-sm"
           >
-            <h2 className="text-lg font-bold mb-4">Recharge Wallet</h2>
+            <h2 className="text-sm font-bold mb-3">Recharge</h2>
             <input
               type="number"
-              className="w-full border p-2 rounded mb-4"
-              placeholder="Enter amount"
               value={rechargeAmount}
               onChange={(e) => setRechargeAmount(e.target.value)}
-              min={1}
+              className="w-full border p-2 rounded mb-3 text-sm"
+              placeholder="Amount"
               required
             />
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end gap-2">
               <button
                 type="button"
-                className="px-4 py-2 bg-gray-200 rounded"
                 onClick={() => setShowRecharge(false)}
+                className="px-3 py-1 bg-gray-200 rounded text-xs"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-red-600 text-white rounded"
+                className="px-3 py-1 bg-red-600 text-white rounded text-xs"
               >
-                Recharge
+                OK
               </button>
             </div>
           </form>
@@ -367,25 +480,22 @@ const Dashboard = () => {
 
       {/* Withdraw Modal */}
       {showWithdraw && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-3">
           <form
-            className="bg-white p-6 rounded-lg shadow-lg w-96"
             onSubmit={handleWithdraw}
+            className="bg-white p-4 rounded-lg w-full max-w-sm text-sm"
           >
-            <h2 className="text-lg font-bold mb-4">Withdraw Funds</h2>
+            <h2 className="font-bold mb-3">Withdraw</h2>
             <input
               type="number"
-              className="w-full border p-2 rounded mb-2"
-              placeholder="Amount"
               value={withdrawAmount}
               onChange={(e) => setWithdrawAmount(e.target.value)}
-              min={1}
+              placeholder="Amount"
+              className="w-full border p-2 rounded mb-2"
               required
             />
             <input
               type="text"
-              className="w-full border p-2 rounded mb-2"
-              placeholder="Account Number"
               value={withdrawBank.accountNumber}
               onChange={(e) =>
                 setWithdrawBank({
@@ -393,22 +503,22 @@ const Dashboard = () => {
                   accountNumber: e.target.value,
                 })
               }
+              placeholder="Account Number"
+              className="w-full border p-2 rounded mb-2"
               required
             />
             <input
               type="text"
-              className="w-full border p-2 rounded mb-2"
-              placeholder="IFSC Code"
               value={withdrawBank.ifscCode}
               onChange={(e) =>
                 setWithdrawBank({ ...withdrawBank, ifscCode: e.target.value })
               }
+              placeholder="IFSC Code"
+              className="w-full border p-2 rounded mb-2"
               required
             />
             <input
               type="text"
-              className="w-full border p-2 rounded mb-4"
-              placeholder="Account Holder Name"
               value={withdrawBank.accountHolder}
               onChange={(e) =>
                 setWithdrawBank({
@@ -416,19 +526,21 @@ const Dashboard = () => {
                   accountHolder: e.target.value,
                 })
               }
+              placeholder="Account Holder"
+              className="w-full border p-2 rounded mb-3"
               required
             />
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end gap-2">
               <button
                 type="button"
-                className="px-4 py-2 bg-gray-200 rounded"
                 onClick={() => setShowWithdraw(false)}
+                className="px-3 py-1 bg-gray-200 rounded"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-red-600 text-white rounded"
+                className="px-3 py-1 bg-red-600 text-white rounded"
               >
                 Withdraw
               </button>
@@ -437,54 +549,55 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Success/Error Message */}
+      {/* Message */}
       {message && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-white border border-red-400 text-red-700 px-6 py-3 rounded shadow-lg z-50">
+        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 bg-white border border-red-400 text-red-600 px-4 py-2 rounded text-xs shadow z-50">
           {message}
-          <button
-            className="ml-4 text-xs text-gray-500"
-            onClick={() => setMessage("")}
-          >
-            x
+          <button onClick={() => setMessage("")} className="ml-2 text-gray-500">
+            ×
           </button>
         </div>
       )}
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2">
-        <div className="flex justify-around">
-          <button className="flex flex-col items-center space-y-1 p-2">
-            <Home className="w-5 h-5 text-red-500" />
-            <span className="text-xs text-red-500">Home</span>
+      <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 py-2 pb-safe">
+        <div className="flex justify-around text-xs">
+          <button
+            onClick={() => setActiveTab("day")}
+            className={`flex flex-col items-center ${
+              activeTab === "day" ? "text-red-500" : "text-gray-400"
+            }`}
+          >
+            <Home className="w-5 h-5" />
+            <span>Home</span>
           </button>
-          <Link to="/task" className="flex flex-col items-center space-y-1 p-2">
-            <CheckSquare className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Task</span>
+          <Link to="/task" className="flex flex-col items-center text-gray-400">
+            <CheckSquare className="w-5 h-5" />
+            <span>Task</span>
           </Link>
-          <button className="flex flex-col items-center space-y-1 p-2">
+          <button className="flex flex-col items-center">
             <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
               <Users className="w-4 h-4 text-white" />
             </div>
           </button>
           <Link
             to="/about"
-            className="flex flex-col items-center space-y-1 p-2"
+            className="flex flex-col items-center text-gray-400"
           >
-            <Info className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">About</span>
+            <Info className="w-5 h-5" />
+            <span>About</span>
           </Link>
-          <Link
-            to="/profile"
-            className="flex flex-col items-center space-y-1 p-2"
+          <button
+            onClick={() => setActiveTab("profile")}
+            className={`flex flex-col items-center ${
+              activeTab === "profile" ? "text-red-500" : "text-gray-400"
+            }`}
           >
-            <User className="w-5 h-5 text-gray-400" />
-            <span className="text-xs text-gray-400">Profile</span>
-          </Link>
+            <User className="w-5 h-5" />
+            <span>Profile</span>
+          </button>
         </div>
-      </div>
-
-      {/* Bottom spacing for fixed navigation */}
-      <div className="h-20"></div>
+      </nav>
     </div>
   );
 };

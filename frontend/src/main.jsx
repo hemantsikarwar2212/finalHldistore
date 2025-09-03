@@ -8,10 +8,10 @@ import { BrowserRouter } from "react-router-dom";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter>
-      <AppProvider>
+    <AppProvider>
+      <BrowserRouter>
         <App />
-      </AppProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </AppProvider>
   </StrictMode>
 );
