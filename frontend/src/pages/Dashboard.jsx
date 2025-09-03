@@ -399,12 +399,14 @@ const Dashboard = () => {
                   key={index}
                   className="bg-white rounded-xl p-4 shadow-sm flex flex-col"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="mt-3 p-5 sm:mt-0 sm:ml-3 w-full sm:w-10 h-60 object-cover rounded-lg"
-                    />
+                  <div className="flex  sm:flex-row sm:items-center">
+                    <div>
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="mt-3 p-5 sm:mt-0 sm:ml-3 w-full sm:w-10 h-40 object-cover rounded-lg"
+                      />
+                    </div>
                     <div className="flex-1">
                       <h3 className="text-sm font-semibold mb-2">
                         {product.name}
